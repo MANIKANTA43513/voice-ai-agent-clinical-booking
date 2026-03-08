@@ -1,0 +1,9 @@
+
+fastapi
+uvicorn
+websockets
+redis
+openai
+langdetect
+python-dotenv
+pydantic
