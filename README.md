@@ -2,74 +2,92 @@ Real-Time Multilingual Voice AI Agent
 
 Clinical Appointment Booking System
 
-A real-time voice AI agent designed for a digital healthcare platform that allows patients to manage clinical appointments using natural voice conversations.
+A Real-Time Multilingual Voice AI Agent capable of handling clinical appointment management through natural voice conversations.
+The system processes speech input, understands user intent using an AI agent, executes appointment-related operations, and responds back in voice.
 
-The system processes spoken input, detects the language, interprets user intent through an AI agent, and responds with appointment scheduling actions.
-
-This project demonstrates low-latency voice pipelines, agentic reasoning, tool orchestration, and contextual memory design.
-
----
-
-Key Features
-
-Voice Conversation Agent
-
-The system accepts voice input from the user, converts it into text, interprets intent using an AI agent, and performs scheduling actions.
-
-Supported actions include:
-
-- Appointment booking
-- Appointment rescheduling
-- Appointment cancellation
-- Conflict detection and alternative slot suggestions
+This project demonstrates real-time AI system architecture, agent reasoning, scheduling logic, and multilingual interaction capabilities.
 
 ---
 
-Multilingual Support
+Project Overview
 
-The agent is designed to support conversations in:
+The AI agent enables patients to interact with a healthcare system using voice to:
+
+- Book appointments
+- Reschedule appointments
+- Cancel appointments
+- Check doctor availability
+
+The system processes voice input → reasoning → scheduling → voice response in a low-latency pipeline.
+
+Supported languages:
 
 - English
 - Hindi
 - Tamil
 
-The system detects the spoken language and processes the conversation accordingly.
+---
 
-Example inputs:
+Key Features
 
-English
+Real-Time Voice Interaction
 
-Book appointment with cardiologist tomorrow
+Users can communicate with the AI agent using voice commands.
 
-Hindi
+Multilingual Support
 
-मुझे कल डॉक्टर से मिलना है
+The agent automatically detects and responds in:
 
-Tamil
+- English
+- Hindi
+- Tamil
 
-நாளை மருத்துவரை பார்க்க வேண்டும்
+AI Agent Reasoning
+
+The LLM-based agent interprets user requests and decides which system tool to execute.
+
+Appointment Lifecycle Management
+
+The system handles the complete appointment workflow:
+
+- Booking
+- Rescheduling
+- Cancellation
+- Conflict resolution
+
+Contextual Memory
+
+The agent maintains session-level context to track conversation state.
+
+Conflict Handling
+
+If a requested slot is unavailable, the system suggests alternative times.
 
 ---
 
 System Architecture
 
-The system follows a real-time voice processing pipeline designed for modularity and low latency.
+The system follows a real-time voice processing pipeline.
+
+"Architecture Diagram" (docs/architecture.png.jpeg)
+
+Pipeline flow:
 
 User Voice
 ↓
 WebSocket Streaming
 ↓
-Speech-to-Text (Whisper)
+Speech-to-Text
 ↓
 Language Detection
 ↓
-AI Agent
+LLM Agent
 ↓
 Tool Orchestration
 ↓
 Appointment Scheduler
 ↓
-Memory Layer
+Memory System
 ↓
 Text Response
 ↓
@@ -77,141 +95,11 @@ Text-to-Speech
 ↓
 Audio Response
 
-Architecture Diagram:
-
-docs/architecture.png
-
----
-
-Memory Design
-
-The system maintains context at two levels.
-
-Session Memory
-
-Stores temporary conversation state such as:
-
-- current user intent
-- pending confirmations
-- conversation context
-
-Example:
-
-User: Book appointment
-Agent: Which doctor?
-User: Cardiologist
-
-Session memory tracks the pending intent.
-
----
-
-Persistent Memory
-
-Stores long-term patient information:
-
-- language preference
-- previous appointments
-- preferred doctors
-
-This enables continuity across multiple interactions.
-
----
-
-Appointment Scheduling Logic
-
-The system prevents invalid bookings through validation rules.
-
-Checks include:
-
-- doctor availability
-- double booking prevention
-- past time selection validation
-
-Example:
-
-If a requested slot is unavailable, the system suggests alternatives.
-
-Example response:
-
-The requested slot is unavailable.
-Available slots are 2 PM and 4 PM.
-
----
-
-Real-Time API Access
-
-Backend server exposes APIs through FastAPI.
-
-After running the server, API documentation is available at:
-
-http://127.0.0.1:8000/docs
-
-This interactive documentation allows testing endpoints directly.
-
-Example endpoint:
-
-POST /process
-
----
-
-Latency Breakdown
-
-The system is designed to meet the target latency requirement.
-
-Stage| Estimated Latency
-Speech-to-Text| ~150 ms
-Agent reasoning| ~200 ms
-Response generation| ~80 ms
-
-Estimated total latency:
-
-~430 ms
-
-Target requirement:
-
-< 450 ms
-
----
-
-Setup Instructions
-
-1 Clone Repository
-
-git clone <repository_url>
-
-2 Install Dependencies
-
-pip install -r requirements.txt
-
-3 Start Backend Server
-
-uvicorn backend.main:app --reload
-
-Open API docs:
-
-http://127.0.0.1:8000/docs
-
----
-
-4 Run Voice Agent
-
-python voice_input.py
-
-Example command:
-
-Speak into microphone:
-
-Schedule meeting tomorrow at 7 PM
-
-Example response:
-
-AI Agent received: schedule meeting tomorrow at 7 PM
-
 ---
 
 Project Structure
 
-voice-ai-agent
+voice-ai-agent-clinical-booking
 │
 ├ agent
 │   ├ agent.py
@@ -219,14 +107,20 @@ voice-ai-agent
 │
 ├ backend
 │   ├ main.py
-│   ├ websocket_server.py
-│   └ conversation.py
+│   ├ conversation.py
+│   └ websocket_server.py
 │
 ├ services
+│   ├ speech_to_text.py
+│   ├ text_to_speech.py
+│   ├ language_detection.py
+│   └ latency_logger.py
 │
 ├ memory
+│   └ session_memory.py
 │
 ├ scheduler
+│   └ appointment_engine.py
 │
 ├ docs
 │   ├ architecture.md
@@ -239,60 +133,217 @@ voice-ai-agent
 
 ---
 
+AI Components
+
+Speech-to-Text
+
+Converts spoken audio into text.
+
+Technology used:
+
+- Whisper STT
+
+---
+
+Language Detection
+
+Detects user language automatically.
+
+Languages supported:
+
+- English
+- Hindi
+- Tamil
+
+---
+
+AI Agent (LLM)
+
+The AI agent:
+
+- Understands user intent
+- Determines the required tool
+- Executes scheduling actions
+
+Example request:
+
+Book appointment tomorrow at 5 pm
+
+Agent output:
+
+Intent: Book Appointment
+Date: Tomorrow
+Time: 5 PM
+
+---
+
+Tool Orchestration
+
+The agent interacts with backend tools:
+
+- Check availability
+- Book appointment
+- Cancel appointment
+- Reschedule appointment
+
+---
+
+Appointment Scheduler
+
+Handles scheduling rules:
+
+- Prevents double booking
+- Validates doctor availability
+- Rejects past time slots
+- Suggests alternatives
+
+---
+
+Memory Design
+
+The system maintains session-level context memory.
+
+Example conversation:
+
+User: Book appointment
+Agent: Which doctor?
+User: Cardiologist
+
+The memory stores:
+
+intent: booking
+doctor: cardiologist
+date: pending
+
+This ensures multi-turn conversations remain coherent.
+
+Future improvements include:
+
+- Redis-based memory
+- Persistent patient history
+
+---
+
+Latency Design
+
+The system is optimized for low latency.
+
+Approximate pipeline latency:
+
+Stage| Latency
+Speech Recognition| ~150 ms
+Agent Reasoning| ~200 ms
+Response Generation| ~80 ms
+
+Total Estimated Latency:
+
+~430 ms
+
+Target requirement:
+
+< 450 ms
+
+---
+
+Running the Project
+
+1 Install Dependencies
+
+pip install -r requirements.txt
+
+---
+
+2 Run Backend Server
+
+uvicorn backend.main:app --reload
+
+API documentation will be available at:
+
+http://127.0.0.1:8000/docs
+
+---
+
+3 Test Voice Interaction
+
+Run:
+
+python voice_input.py
+
+Speak commands such as:
+
+Schedule meeting tomorrow at 5 pm
+Cancel my appointment
+Reschedule appointment to Friday
+
+---
+
+Testing Scenarios
+
+Scenario| Expected Result
+Book appointment| Appointment confirmed
+Cancel appointment| Booking removed
+Reschedule| Slot updated
+Language switch| Agent adapts language
+Conflict booking| Alternative slot suggested
+
+---
+
 Trade-offs
 
-Some design decisions were made to simplify the implementation:
-
-- Local speech processing instead of cloud streaming
-- Lightweight memory layer instead of Redis-backed distributed memory
-- Simplified scheduling logic for demonstration purposes
-
-These decisions keep the architecture modular and easy to extend.
+- Local STT model increases CPU usage but removes API dependency
+- Session memory simplifies implementation but limits long-term personalization
+- In-memory scheduler used for simplicity instead of full database
 
 ---
 
 Known Limitations
 
-- Full multilingual conversational optimization is limited
-- Redis-based memory system not implemented
-- Persistent database integration simplified
-- Outbound campaign automation not fully implemented
+- Persistent patient history not implemented
+- Redis memory not integrated yet
+- Outbound campaign calling not implemented
+- Deployment not configured
 
 ---
 
 Future Improvements
 
-Possible improvements include:
+Planned enhancements include:
 
 - Redis-backed memory with TTL
-- Advanced multilingual conversation handling
-- Real-time streaming speech recognition
-- Cloud deployment and horizontal scalability
-- Background job queues for appointment reminders
-- Interrupt handling (barge-in) during agent responses
+- Cloud deployment
+- Horizontal scalability
+- Background job queue for reminder campaigns
+- Real-time WebRTC voice streaming
+- Interrupt / barge-in voice handling
 
 ---
 
 Demo
 
-The system can be demonstrated by running the voice client locally.
+A working demo includes:
 
-Voice input is processed and interpreted by the AI agent to perform scheduling tasks.
+- Real-time voice interaction
+- Speech-to-text conversion
+- Agent reasoning
+- Appointment scheduling
 
-Example interaction:
+---
 
-User Voice
+Repository
 
-Schedule meeting tomorrow at 7 PM
+GitHub Repository:
 
-Agent Response
-
-Meeting scheduled for tomorrow at 7 PM
+https://github.com/MANIKANTA43513/voice-ai-agent-clinical-booking
 
 ---
 
 Author
 
-Manikanta Kandula
-MCA Student
-AI / Backend Development
+Manikanta
+AI / Backend Developer
+
+---
+
+License
+
+This project is intended for educational and engineering evaluation purposes.
