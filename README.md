@@ -258,10 +258,13 @@ pip install -r requirements.txt
 uvicorn backend.main:app --reload
 
 API documentation will be available at:
+Live API Deployment:
+https://voice-ai-agent-clinical-booking.onrender.com
 
-http://127.0.0.1:8000/docs
+API Documentation:
+https://voice-ai-agent-clinical-booking.onrender.com/docs
 
----
+
 
 3 Test Voice Interaction
 
